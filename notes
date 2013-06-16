@@ -1,0 +1,52 @@
+Inspired by fotobilder - rolling your own solution seemss like a fun idea -, but I can no longer find any reference to this on Danga, nor SixApart. I assume it's been amalgamated into the core LJ code (no idea who owns that these days)
+
+###
+What the URI structure may be
+
+/admin			-	Site admin
+/:user			-	List of (public) albums / admin interface
+    /:album		-	Images that form this album / Album admin interface (public/private/delete). Pretty name / generated name?
+	   /:image	-	Image / Image admimn interface (public/private/delete). Pretty name / generated name?
+/i/:id			-	Direct link to image
+[/i]/r/<size>/:id	-	Resized image using nginx's embedded perl resize module: http://wiki.nginx.org/EmbeddedPerlImageResize
+/login			-	GET login page, POST login details
+/logout			-	POST to logout
+/upload			-	POST new images
+
+###
+
+Need to turn the below into a more mojolicious style for applicaition config
+
+Use site local settings if they exist
+
+if (-e "$HOME/etc/config.local") {
+    require "$HOME/etc/config.local";
+}
+
+###
+$HOME/etc/config.site
+
+Fall back to defaults if no site settings
+
+{
+package AA;
+
+%DBINFO = ( 'writer' => {
+		'host'	=>	"locahost",
+		'port'	=>	3306,
+		'user'	=>	"writeuser",
+		'pass'	=>	"password"
+	},
+	'reader' => {
+		'host'	=>	"",
+		'port'	=>	,
+		'user'	=>	"readuser"
+		'pass'	=>	"password"
+	}
+);
+}
+1;
+
+###
+my $dbdwuser	= $AA::DBINFO{'writer'}->{'user'} || "default";
+my $dbruser	= $AA::DBINFO{'reader'}->{'user'} || "default";
