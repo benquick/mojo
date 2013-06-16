@@ -7,25 +7,46 @@ What the URI structure may be:
     	       /:album		-	Images that form this album / Album admin interface (public/private/delete/rename). User defined, rather than generated
 	              /:image	-	Image / Image admimn interface (public/private/delete/rename). User defined, rather than generated
 /i/:id				-	Direct link to image. Static. You can rename :image without creating a new :id. :id cannot be changed
-[/i]/r/<size>/:id		-	Resized image using nginx's embedded perl resize module: http://wiki.nginx.org/EmbeddedPerlImageResize
-		     		- OR -
-[/i]/r/:id/<size>		-	Resized image using nginx's embedded perl resize module: http://wiki.nginx.org/EmbeddedPerlImageResize. This is probably prefered
+[/i]/r/:id/<size>		-	Resized image using nginx's embedded perl resize module: http://wiki.nginx.org/EmbeddedPerlImageResize
 /login				-	GET login page, POST login details
 /logout				-	POST to logout
 /upload				-	POST new images
 
-http://www.example.org/admin
-http://www.example.org/user
-http://www.example.org/signup
-http://www.example.org/user/testuser
-http://www.example.org/user/testuser/testalbum
-http://www.example.org/user/testuser/testalbum/DSC_0001.jpg
-http://www.example.org/i/8c0ba84
-http://www.example.org/r/8c0ba84/100x100
-http://www.example.org/login
-http://www.example.org/logout
-http://www.example.org/upload
+$SITE = www.example.org;
+
+http://$SITE/admin					-
+http://$SITE/user					-
+http://$SITE/signup					-
+http://$SITE/user/testuser				-	select albumid, albumname from albummap, albuminfo where public = 'y' || logged in and owner || logged in
+http://$SITE/user/testuser/testalbum			-	select imageid, imagename from albummap, imageinfo where public = 'y' || logged in and owner || logged in
+http://$SITE/user/testuser/testalbum/DSC_0001.jpg	-	select imageid, albumname, imagename from imageinfo, albuminfo where image.public = 'y' && album.public = 'y' || logged in and owner || logged in
+http://$SITE/i/8c0ba84					-	select imageid from imageinfo where public = 'y' || logged in and owner || logged in
+http://$SITE/r/8c0ba84/100x100				-				-- " --				-- " -- && transform
+http://$SITE/login					-
+http://$SITE/logout					-
+http://$SITE/upload					-
+
+###
+
+What the database may look like
+
+Album map  - userid:albumid		-	Simple map to define all albums owned by user
+User info  - userid			-	
+             username			-	Display name
+             oneway hashed password
+Album info - albumid
+             albumname			- 	Display name
+             public|private|loggedin	-	Who can view this album - Everyone|OwnerOnly|LoggedInUsers
+Image info - imageid
+             imagename			-	Display name
+             public|private|loggedin	-	Who can view this picture - Everyone|OwnerOnly|LoggedInUsers. Album settings or image settings take priority?
+Image map  - imageid:albumid		-	Simple map to define all images in album
+
+###
+
+Notes
 
 Prototype with _lite, expand with inflated app?
 Initially use sqlite backend?
 How to generate unique ID's, of a fixed (defainable) length
+
